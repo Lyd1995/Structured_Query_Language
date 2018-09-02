@@ -1,0 +1,113 @@
+1、创建三张表的代码如下：
+Patron 表： 
+CREATE TABLE `test2`.`patron` ( 
+  `patron_id` VARCHAR(45) NOT NULL, 
+  `name` VARCHAR(45) NULL, 
+  `address` VARCHAR(45) NULL, 
+  `email` VARCHAR(45) NULL, 
+  `phone` VARCHAR(45) NULL, 
+  PRIMARY KEY (`patron_id`)); 
+  
+  Menu 表： 
+CREATE TABLE `test2`.`menu` ( 
+  `menu_id` VARCHAR(45) NOT NULL, 
+  `menu_name` VARCHAR(45) NULL, 
+  `menu_date` DATE NULL,   
+  PRIMARY KEY (`menu_id`)); 
+  
+  food_item 表： 
+CREATE TABLE `test2`.`food_item` ( 
+  `food_description` VARCHAR(100) NOT NULL, 
+  `food_price` INT NULL, 
+  `menu_id` VARCHAR(45) NULL, 
+  PRIMARY KEY (`food_description`), 
+  INDEX `menu_id_idx` (`menu_id` ASC) VISIBLE, 
+  CONSTRAINT `menu_id` 
+  FOREIGN KEY (`menu_id`) 
+  REFERENCES `test2`.`menu` (`menu_id`) 
+  ON DELETE NO ACTION 
+  ON UPDATE CASCADE); 
+
+
+2、	给表 patron 增加一个新的列 
+alter table test2.patron add column `id` varchar(50) 
+
+删除新增的那列 
+alter table test2.patron drop column `id`  
+
+3、	创建一张新的表（food_item1）： 
+CREATE TABLE `test2`.`food_item1` ( 
+`food_description` varchar(20) not null, 
+`food_price` int null, 
+`menu_id` VARCHAR(45) NULL, 
+primary key(food_description), 
+foreign key (menu_id) references menu(menu_id)); 
+删除这张表： 
+drop table test2.food_item1 restrict 
+
+4、	查询 patron 表中 name 字段的长度小于 3 的所有的人的记录首先，将数据插入 patron： 
+INSERT INTO test2.patron(patron_id,name,address,email,phone) SELECT customer_id,first_name,address,email,phone FROM sakila.customer,sakila.address  
+WHERE sakila.customer.address_id=sakila.address.address_id 
+
+查询： 
+SELECT * FROM test2.patron 
+WHERE length(test2.patron.name)<3; 
+
+5、	增加一种菜型 
+INSERT INTO `test2`.`menu` (`menu_id`, `menu_name`, `menu_date`) VALUES ('2', 'potato', '2018.8.22'); 
+增加 2~3 种 food_menu： 
+INSERT INTO `test2`.`food_item` (`food_description`, `food_price`, `menu_id`) VALUES ('放醋，醋溜土豆丝', '2', '2'); 
+INSERT INTO `test2`.`food_item` (`food_description`, `food_price`, `menu_id`) VALUES ('将土豆切丝，放盐一起炒', '2', '2'); 
+
+6、	创建视图 
+CREATE VIEW test2.patron_vi AS SELECT name,email FROM test2.patron; 
+
+
+7、	查询 food_menu 表中总的记录数： 
+SELECT count(*) FROM test2.food_item; 
+
+8、	查询 patron 表中手机尾号为’5728’的记录 
+SELECT * FROM test2.patron 
+WHERE test2.patron.phone LIKE '%5728'; 
+
+注：%是通配符，可以通配多个字符
+_也是通配符，仅能通配一个字符
+
+9、	将 menu 表按时间排序（升序） 
+SELECT * FROM test2.menu 
+ORDER BY test2.menu.menu_date ASC; 
+
+ASC:升序排序
+DESC:降序排序
+
+10、	查询出 food_item 表中 menu_id 以及对应的 menu_id 的菜的个数 
+SELECT test2.food_item.menu_id FROM test2.food_item,test2.menu 
+WHERE test2.food_item.menu_id=test2.menu.menu_id; 
+
+11、	查询出 patron 表中的前 5 条记录 
+SELECT * FROM test2.patron LIMIT 5; 
+
+12、	查询出菜名为’土豆丝’的菜的价格，菜的描述以及它所属的菜的种类的名字 
+SELECT food_price,food_description FROM test2.food_item,test2.menu 
+WHERE test2.food_item.menu_id=test2.menu.menu_id and test2.menu.menu_name='potato'; 
+
+13、	查询出 food_item 表中和’土豆丝’一样菜价的菜的名字，价格 
+SELECT food_price,food_description,menu_name FROM test2.food_item,test2.menu 
+WHERE test2.food_item.food_price=(SELECT food_price FROM test2.food_item 
+WHERE test2.food_item.food_description LIKE '% 土 豆 %' LIMIT 1 ) 
+and test2.menu.menu_id=test2.food_item.menu_id 	and test2.menu.menu_name<>'potato';
+
+
+14、查询选修了三门课以上的学生学号
+SELECT Sno FROM SC
+GROUP BY Sno
+HAVING COUNT(*)>3;
+
+GROUP BY:按照某个列属性进行分组
+COUNT：统计元组个数
+
+
+
+
+
+
