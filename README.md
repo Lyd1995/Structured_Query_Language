@@ -1,1 +1,2 @@
-# Structured_Query_Language
+数据库语言
+基本的创建、查询、插入、删除、修改等操作
